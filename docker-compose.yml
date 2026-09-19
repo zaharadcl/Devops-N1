@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: site-grupo1
+    restart: always
+    ports:
+      - "80:80"
