@@ -1,22 +1,182 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Projeto DevOps - Grupo 1</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projeto de Computação - Afya São Lucas</title>
+    
+    <!-- Importando Bootstrap 5 via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Importando fonte Inter do Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <main class="card">
-    <h1>N1 — Projeto DevOps</h1>
-    <p class="subtitle">Aplicação Web em Ambiente de Nuvem</p>
 
-    <section class="integrantes">
-      <h2>Integrantes do Grupo 1:</h2>
-      <ul>
-        <li>Zahara Luize Duarte Cury de Lacerda</li>
-      </ul>
-    </section>
-  </main>
+    <header class="hero-section text-center">
+        <div class="container">
+            <span class="badge badge-afya rounded-pill px-4 py-2 mb-4 fs-6">Afya São Lucas - Ciência da Computação</span>
+            <h1 class="display-4 fw-bold mb-3">Aplicação Web em Ambiente de Nuvem</h1>
+            <p class="lead mb-0 opacity-75" style="max-width: 700px; margin: 0 auto;">
+                Aplicação web desenvolvida como projeto da disciplina de DevOps, aplicando conceitos de desenvolvimento, controle de versão e implantação em ambiente de nuvem.
+            </p>
+        </div>
+    </header>
+
+    <main class="container my-5 flex-grow-1">
+        
+        <!-- Botão de Acesso à Documentação -->
+        <div class="text-center mb-5 mt-2">
+            <button type="button" class="btn btn-primary-custom" data-bs-toggle="modal" data-bs-target="#documentationModal">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-journal-code me-2" viewBox="0 0 16 16" style="margin-top: -3px;">
+                    <path fill-rule="evenodd" d="M8.646 5.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 8 8.646 6.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 8l1.647-1.646a.5.5 0 0 0 0-.708z"/>
+                    <path d="M3 0h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-1h1v1a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v1H1V2a2 2 0 0 1 2-2z"/>
+                    <path d="M1 5v-.5a.5.5 0 0 1 1 0V5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0V8h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1zm0 3v-.5a.5.5 0 0 1 1 0v.5h.5a.5.5 0 0 1 0 1h-2a.5.5 0 0 1 0-1H1z"/>
+                </svg>
+                Visualizar Documentação
+            </button>
+        </div>
+
+        <!-- Seção da Equipe -->
+        <h3 class="text-center fw-bold mb-4" style="color: var(--dark-blue);">Equipe do Projeto</h3>
+        
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">ZL</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Zahara Luize Duarte Cury de Lacerda</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">KC</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Kauenny Leão Castro</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">GQ</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Gustavo Henrique Neves de Queiroz</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">LN</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Laura Artemes de Sousa Nunes</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle"></div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Liynaa Duarte Cury de Lacerda</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">I6</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Integrante 6</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">I7</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Integrante 7</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">I8</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Integrante 8</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">I9</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Integrante 9</h4>
+                </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                <div class="member-card text-center">
+                    <div class="avatar-circle">I10</div>
+                    <h4 class="fw-bold mb-0" style="color: var(--dark-blue);">Integrante 10</h4>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal da Documentação (Abre ao clicar no botão) -->
+    <div class="modal fade" id="documentationModal" tabindex="-1" aria-labelledby="documentationModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content shadow-lg">
+                
+                <div class="modal-header px-4 py-3">
+                    <h4 class="modal-title" id="documentationModalLabel">Documentação Técnica Oficial</h4>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                
+                <div class="modal-body p-4 p-md-5 bg-white">
+                    
+                    <div class="doc-topic">
+                        <h5>1. Resumo do Projeto</h5>
+                        <p>O presente projeto constitui a entrega final para avaliação da disciplina. A interface foi projetada utilizando conceitos de <strong>Mobile First</strong> e responsividade avançada, garantindo uma renderização perfeita tanto em dispositivos móveis quanto em computadores de mesa.</p>
+                    </div>
+
+                    <div class="doc-topic">
+                        <h5>2. Decisões Arquiteturais e Tecnologias</h5>
+                        <ul class="mb-0 text-muted">
+                            <li class="mb-2"><strong style="color: var(--dark-blue);">HTML5 & CSS3:</strong> Utilizados para a marcação semântica e estilização customizada focada na paleta institucional (Azul e Branco).</li>
+                            <li class="mb-2"><strong style="color: var(--dark-blue);">Bootstrap 5.3:</strong> Framework escolhido pela facilidade na construção do Grid e dos componentes flutuantes (Modais).</li>
+                            <li><strong style="color: var(--dark-blue);">JavaScript Vanilla:</strong> Manipulação de eventos simples, sem necessidade de bibliotecas pesadas.</li>
+                        </ul>
+                    </div>
+
+                    <div class="doc-topic">
+                        <h5>3. Controle de Versão (Git)</h5>
+                        <p>Para o desenvolvimento em equipe, as seguintes práticas foram adotadas no fluxo de trabalho:</p>
+                        <div class="code-block">
+                            // Clonando o repositório principal<br>
+                            &gt; git clone https://github.com/usuario/projeto-afya.git<br><br>
+                            // Criando e isolando a branch de desenvolvimento da interface<br>
+                            &gt; git switch -c feature/interface-web<br><br>
+                            // Atualizando a branch com a base (main)<br>
+                            &gt; git pull origin main
+                        </div>
+                    </div>
+
+                </div>
+                
+                <div class="modal-footer bg-light border-0 px-4 py-3">
+                    <button type="button" class="btn btn-secondary px-4 rounded-pill" data-bs-dismiss="modal">Fechar Documentação</button>
+                    <button type="button" class="btn btn-primary-custom px-4" id="btnAcessarRepo" style="padding: 0.5rem 1.5rem;">
+                        Repositório no GitHub
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 Ciência da Computação - Afya São Lucas.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS (Contém o Popper.js necessário para o Modal funcionar) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Script Customizado da Página -->
+    <script src="script.js"></script>
 </body>
 </html>
