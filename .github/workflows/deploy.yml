@@ -9,13 +9,13 @@ on:
 jobs:
   # 1. BUILD / VALIDAÇÃO ESTRUTURAL
   build:
-    name: 1. Build & Validação
+    name: "1. Build & Validação"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
+      - name: "Checkout do repositório"
         uses: actions/checkout@v4
 
-      - name: Validar integridade dos arquivos essenciais
+      - name: "Validar integridade dos arquivos essenciais"
         run: |
           echo "Verificando se os arquivos estruturais existem..."
           test -f index.html || (echo "Erro: index.html ausente" && exit 1)
@@ -26,20 +26,20 @@ jobs:
 
   # 2. TESTES AUTOMATIZADOS (Smoke Test)
   test:
-    name: 2. Testes Automatizados
+    name: "2. Testes Automatizados"
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
+      - name: "Checkout do repositório"
         uses: actions/checkout@v4
 
-      - name: Subir contêiner temporário para teste
+      - name: "Subir contêiner temporário para teste"
         run: |
           docker build -t site-teste .
           docker run -d --name container-teste -p 8080:80 site-teste
           sleep 3
 
-      - name: Testar requisição HTTP (Esperado: 200 OK)
+      - name: "Testar requisição HTTP - Esperado status 200"
         run: |
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
           echo "Código HTTP recebido: $HTTP_STATUS"
@@ -49,32 +49,32 @@ jobs:
           fi
           echo "Aplicação validada com sucesso!"
 
-      - name: Limpar ambiente de teste
+      - name: "Limpar ambiente de teste"
         if: always()
         run: docker rm -f container-teste || true
 
   # 3. BUILD DA IMAGEM DOCKER
   build-image:
-    name: 3. Build da Imagem Docker
+    name: "3. Build da Imagem Docker"
     needs: test
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout do repositório
+      - name: "Checkout do repositório"
         uses: actions/checkout@v4
 
-      - name: Construir imagem de produção
+      - name: "Construir imagem de produção"
         run: |
           docker build -t devops-site:${{ github.sha }} .
-          echo "Imagem devops-site:${{ github.sha }} compilada com sucesso!"
+          echo "Imagem compilada com sucesso!"
 
   # 4. DEPLOY AUTOMATIZADO NA ORACLE CLOUD
   deploy:
-    name: 4. Deploy em Produção (VM)
+    name: "4. Deploy em Produção (VM)"
     needs: build-image
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - name: Executar deploy via SSH na VM
+      - name: "Executar deploy via SSH na VM"
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.HOST }}
