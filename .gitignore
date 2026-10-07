@@ -1,0 +1,14 @@
+*.key
+*.pem
+*.pub
+id_rsa*
+*.pfx
+
+.env
+.env.*
+!.env.example
+
+.vscode/
+.idea/
+Thumbs.db
+Desktop.ini
