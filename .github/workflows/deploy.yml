@@ -1,24 +1,85 @@
-name: Deploy Continuo (CI/CD)
+name: CI/CD Pipeline
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  deploy:
+  # 1. BUILD / VALIDAÇÃO ESTRUTURAL
+  build:
+    name: 1. Build & Validação
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout do repositorio
+      - name: Checkout do repositório
         uses: actions/checkout@v4
 
-      - name: Executar Deploy na VM Oracle via SSH
+      - name: Validar integridade dos arquivos essenciais
+        run: |
+          echo "Verificando se os arquivos estruturais existem..."
+          test -f index.html || (echo "Erro: index.html ausente" && exit 1)
+          test -f style.css || (echo "Erro: style.css ausente" && exit 1)
+          test -f Dockerfile || (echo "Erro: Dockerfile ausente" && exit 1)
+          test -f docker-compose.yml || (echo "Erro: docker-compose.yml ausente" && exit 1)
+          echo "Todos os arquivos necessários estão presentes!"
+
+  # 2. TESTES AUTOMATIZADOS (Smoke Test)
+  test:
+    name: 2. Testes Automatizados
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Subir contêiner temporário para teste
+        run: |
+          docker build -t site-teste .
+          docker run -d --name container-teste -p 8080:80 site-teste
+          sleep 3
+
+      - name: Testar requisição HTTP (Esperado: 200 OK)
+        run: |
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8080)
+          echo "Código HTTP recebido: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ]; then
+            echo "Falha no teste: Aplicação não retornou status 200."
+            exit 1
+          fi
+          echo "Aplicação validada com sucesso!"
+
+      - name: Limpar ambiente de teste
+        if: always()
+        run: docker rm -f container-teste || true
+
+  # 3. BUILD DA IMAGEM DOCKER
+  build-image:
+    name: 3. Build da Imagem Docker
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: Construir imagem de produção
+        run: |
+          docker build -t devops-site:${{ github.sha }} .
+          echo "Imagem devops-site:${{ github.sha }} compilada com sucesso!"
+
+  # 4. DEPLOY AUTOMATIZADO NA ORACLE CLOUD
+  deploy:
+    name: 4. Deploy em Produção (VM)
+    needs: build-image
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    steps:
+      - name: Executar deploy via SSH na VM
         uses: appleboy/ssh-action@v1.0.3
         with:
-          host: ${{ secrets.VM_HOST }}
-          username: ${{ secrets.VM_USER }}
-          key: ${{ secrets.VM_SSH_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.KEY }}
           script: |
             cd ~/Devops-N1
             git checkout main
