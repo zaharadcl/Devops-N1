@@ -1,6 +1,5 @@
 # ☁️ Projeto Integrador — Cloud & DevOps
 
-
 ## 🌐 Aplicação
 
 🔗 **Acesse:** https://devopszahara.duckdns.org
@@ -17,8 +16,8 @@
 8. [Configuração do DNS](#8-configuração-do-dns)
 9. [Configuração do HTTPS](#9-configuração-do-https)
 10. [Processo de CI/CD](#10-processo-de-cicd)
-11. - [Monitoramento](#11-monitoramento)
-12. - [Procedimentos básicos de recuperação](#12-procedimentos-básicos-de-recuperação)
+11. [Monitoramento](#11-monitoramento)
+12. [Procedimentos básicos de recuperação](#12-procedimentos-básicos-de-recuperação)
 
 ## 1. Descrição da aplicação
 
