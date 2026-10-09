@@ -564,6 +564,88 @@ docker compose up -d --build
 
 ## 11. Monitoramento
 
+Esta seção descreve como a disponibilidade e o desempenho da API são monitorados, usando o [Uptime Kuma](https://github.com/louislam/uptime-kuma).
+
+### 11.1 Objetivo
+
+Detectar rapidamente indisponibilidade, lentidão e erros na API, e notificar a equipe antes que os usuários sejam muito afetados.
+
+### 11.2 Ferramenta escolhida
+
+O Uptime Kuma é uma ferramenta open source e self-hosted de monitoramento de uptime. Foi escolhida por:
+
+- Ser simples de instalar e configurar (um único container Docker);
+- Oferecer painel web e página de status prontos;
+- Suportar vários tipos de checagem (HTTP, TCP, ping, entre outros);
+- Integrar com diversos canais de notificação.
+
+### 11.3 Como subir o monitoramento
+
+```bash
+docker run -d --restart=always -p 3001:3001 \
+  -v uptime-kuma:/app/data \
+  --name uptime-kuma louislam/uptime-kuma:1
+```
+
+Depois, acesse `http://localhost:3001` e crie o usuário administrador.
+
+### 11.4 O que é monitorado
+
+Há um único monitor configurado, que verifica se a aplicação está em execução:
+
+- **Nome:** `trabalho devops`
+- **Tipo:** HTTP(s)
+- **Alvo:** `https://devopszahara.duckdns.org/`
+- **Intervalo:** `60 segundos`
+- **Critério de falha:** resposta com status diferente de 2xx, ou ausência de resposta (timeout)
+
+Se a checagem falhar `3` vezes seguidas, o monitor é marcado como fora do ar e o alerta é disparado.
+
+### 11.5 Métricas acompanhadas
+
+- **Uptime (%):** disponibilidade nas últimas 24h, 30 dias e 1 ano.
+- **Tempo de resposta (ms):** latência de cada checagem, com gráfico histórico.
+- **Status code:** detecta erros 4xx e 5xx.
+- **Histórico de incidentes:** registro de quando a API caiu e por quanto tempo.
+
+**Métricas**
+
+<img width="1920" height="1040" alt="metricas" src="https://github.com/user-attachments/assets/5b2107d4-b270-41e9-8964-d3a9300dff46" />
+
+**Métricas ao longo do tempo**
+
+<img width="1920" height="1040" alt="metricas2" src="https://github.com/user-attachments/assets/df7f9741-094b-4033-9ab9-7124c360f0e1" />
+
+### 11.6 Alertas
+
+Quando um monitor falha `3` vezes seguidas (para evitar falsos positivos), uma notificação é enviada via `Discord`. Um novo aviso é enviado quando o serviço se recupera.
+
+**Exemplo de erro**
+
+<img width="1920" height="991" alt="erro" src="https://github.com/user-attachments/assets/ae5fd108-9019-439d-8d43-ff29349c0397" />
+
+**Notificação enviada**
+
+<img width="1289" height="580" alt="notificacao" src="https://github.com/user-attachments/assets/8cf9221b-7c2d-4c34-b48b-d8626fc66592" />
+
+### 11.7 Página de status
+
+O Uptime Kuma oferece uma página de status que exibe a situação atual da aplicação. Neste projeto, ela foi configurada, mas não foi exposta publicamente, já que o ambiente é apenas para fins acadêmicos. A imagem abaixo mostra como ela é apresentada:
+
+<img width="1920" height="992" alt="status" src="https://github.com/user-attachments/assets/8bc7c422-f555-4f35-b86b-3913ce8f3f61" />
+
+### 11.8 Como responder a um incidente
+
+1. Receber o alerta e confirmar no painel do Uptime Kuma.
+2. Verificar os logs da aplicação (`docker logs <api>`).
+3. Corrigir ou reverter a última mudança.
+4. Confirmar a recuperação no painel e registrar o ocorrido.
+
+### 11.9 Limitações e melhorias futuras
+
+- O Uptime Kuma monitora o comportamento externo (a API responde ou não), mas não coleta métricas internas como CPU e memória.
+- Como evolução, seria possível integrar Prometheus + Grafana para métricas detalhadas e adicionar logs centralizados.
+
 ## 12. Procedimentos básicos de recuperação
 
 --> Esta seção descreve como restabelecer o serviço nos cenários de falha mais prováveis. Como o site é estático e todo o código está versionado no GitHub, a recuperação é simples: o repositório é a fonte de verdade da aplicação.
