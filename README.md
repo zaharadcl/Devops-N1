@@ -7,18 +7,18 @@
 
 ## 📑 Seções
 
-- [1. Descrição da aplicação](#1-descrição-da-aplicação)
-- [2. Arquitetura do ambiente](#2-arquitetura-do-ambiente)
-- [3. Tecnologias utilizadas](#3-tecnologias-utilizadas)
-- [4. Estrutura do projeto](#4-estrutura-do-projeto)
-- [5. Processo de instalação](#5-processo-de-instalação)
-- [6. Processo de deploy](#6-processo-de-deploy)
-- [7. Configuração do Docker](#7-configuração-do-docker)
-- [8. Configuração do DNS](#8-configuração-do-dns)
-- [9. Configuração do HTTPS](#9-configuração-do-https)
-- [10. Processo de CI/CD](#10-processo-de-cicd)
-- [11. Monitoramento](#11-monitoramento)
-- [12. Procedimentos básicos de recuperação](#12-procedimentos-básicos-de-recuperação)
+- 1. [Descrição da aplicação](#1-descrição-da-aplicação)
+- 2. [Arquitetura do ambiente](#2-arquitetura-do-ambiente)
+- 3. [Tecnologias utilizadas](#3-tecnologias-utilizadas)
+- 4. [Estrutura do projeto](#4-estrutura-do-projeto)
+- 5. [Processo de instalação](#5-processo-de-instalação)
+- 6. [Processo de deploy](#6-processo-de-deploy)
+- 7. [Configuração do Docker](#7-configuração-do-docker)
+- 8. [Configuração do DNS](#8-configuração-do-dns)
+- 9. [Configuração do HTTPS](#9-configuração-do-https)
+- 10. [Processo de CI/CD](#10-processo-de-cicd)
+- 11. [Monitoramento](#11-monitoramento)
+- 12. [Procedimentos básicos de recuperação](#12-procedimentos-básicos-de-recuperação)
 
 ## 1. Descrição da aplicação
 
