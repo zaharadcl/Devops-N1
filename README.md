@@ -1,9 +1,24 @@
 # ☁️ Projeto Integrador — Cloud & DevOps
 
 
-## Aplicação
+## 🌐 Aplicação
 
 🔗 **Acesse:** https://devopszahara.duckdns.org
+
+## 📑 Seções
+
+- [1. Descrição da aplicação](#1-descrição-da-aplicação)
+- [2. Arquitetura do ambiente](#2-arquitetura-do-ambiente)
+- [3. Tecnologias utilizadas](#3-tecnologias-utilizadas)
+- [4. Estrutura do projeto](#4-estrutura-do-projeto)
+- [5. Processo de instalação](#5-processo-de-instalação)
+- [6. Processo de deploy](#6-processo-de-deploy)
+- [7. Configuração do Docker](#7-configuração-do-docker)
+- [8. Configuração do DNS](#8-configuração-do-dns)
+- [9. Configuração do HTTPS](#9-configuração-do-https)
+- [10. Processo de CI/CD](#10-processo-de-cicd)
+- [11. Monitoramento](#11-monitoramento)
+- [12. Procedimentos básicos de recuperação](#12-procedimentos-básicos-de-recuperação)
 
 ## 1. Descrição da aplicação
 
@@ -478,7 +493,7 @@ O HTTPS também utiliza a porta 443, que está mapeada no `docker-compose.yml` p
 
 ## 10. Processo de CI/CD
 
-O projeto usa o **GitHub Actions** para automatizar validação, testes e deploy. O pipeline está definido em `.github/workflows/deploy.yml` e é composto por quatro jobs executados em sequência. Se qualquer um falhar, os seguintes não rodam e o deploy não acontece.
+--> O projeto usa o **GitHub Actions** para automatizar validação, testes e deploy. O pipeline está definido em `.github/workflows/deploy.yml` e é composto por quatro jobs executados em sequência. Se qualquer um falhar, os seguintes não rodam e o deploy não acontece.
 
 ### Gatilhos
 
@@ -487,7 +502,7 @@ O projeto usa o **GitHub Actions** para automatizar validação, testes e deploy
 | `push` na branch `main` | Executa os 4 jobs, incluindo o deploy em produção |
 | `pull_request` para `main` | Executa apenas os 3 primeiros jobs (validação, teste e build), sem deploy |
 
-Assim, qualquer alteração proposta via Pull Request é verificada antes de chegar à produção.
+--> Assim, qualquer alteração proposta via Pull Request é verificada antes de chegar à produção.
 
 ### Fluxo do pipeline
 
@@ -504,16 +519,16 @@ flowchart LR
 ### Etapas
 
 **1. Build e Validação**
-Faz o checkout do repositório e confirma que os arquivos essenciais existem: `index.html`, `style.css`, `Dockerfile` e `docker-compose.yml`. Se algum estiver ausente, o pipeline falha logo no início.
+--> Faz o checkout do repositório e confirma que os arquivos essenciais existem: `index.html`, `style.css`, `Dockerfile` e `docker-compose.yml`. Se algum estiver ausente, o pipeline falha logo no início.
 
 **2. Testes Automatizados (smoke test)**
-Constrói a imagem Docker, sobe um contêiner temporário na porta 8080 e faz uma requisição HTTP com `curl`. O teste passa somente se a aplicação responder com **status 200**. Ao final, o contêiner de teste é removido (`if: always()`), mesmo que o teste falhe.
+--> Constrói a imagem Docker, sobe um contêiner temporário na porta 8080 e faz uma requisição HTTP com `curl`. O teste passa somente se a aplicação responder com **status 200**. Ao final, o contêiner de teste é removido (`if: always()`), mesmo que o teste falhe.
 
 **3. Build da Imagem Docker**
-Constrói a imagem de produção, identificada pelo hash do commit (`devops-site:<sha>`). Essa etapa garante que o `Dockerfile` está construindo corretamente antes do deploy.
+--> Constrói a imagem de produção, identificada pelo hash do commit (`devops-site:<sha>`). Essa etapa garante que o `Dockerfile` está construindo corretamente antes do deploy.
 
 **4. Deploy em Produção (VM)**
-Executa apenas em `push` na `main`. Conecta por **SSH** à máquina virtual na Oracle Cloud (usando a action `appleboy/ssh-action`) e roda os comandos:
+--> Executa apenas em `push` na `main`. Conecta por **SSH** à máquina virtual na Oracle Cloud (usando a action `appleboy/ssh-action`) e roda os comandos:
 
 ```bash
 cd ~/Devops-N1
@@ -523,11 +538,11 @@ docker compose down --remove-orphans
 docker compose up -d --build
 ```
 
-Ou seja, a VM baixa o código mais recente, derruba os contêineres antigos e sobe a nova versão reconstruindo a imagem.
+--> Ou seja, a VM baixa o código mais recente, derruba os contêineres antigos e sobe a nova versão reconstruindo a imagem.
 
 ### Segredos utilizados
 
-As credenciais de acesso à VM ficam armazenadas em **GitHub Secrets** (*Settings → Secrets and variables → Actions*) e nunca aparecem no código:
+--> As credenciais de acesso à VM ficam armazenadas em **GitHub Secrets** (*Settings → Secrets and variables → Actions*) e nunca aparecem no código:
 
 | Secret | Finalidade |
 |---|---|
@@ -537,7 +552,7 @@ As credenciais de acesso à VM ficam armazenadas em **GitHub Secrets** (*Setting
 
 ### Como acompanhar uma execução
 
-Na aba **Actions** do repositório, cada execução mostra o status de cada job e os logs detalhados. Em caso de falha, é possível identificar exatamente em qual etapa ocorreu o problema.
+--> Na aba **Actions** do repositório, cada execução mostra o status de cada job e os logs detalhados. Em caso de falha, é possível identificar exatamente em qual etapa ocorreu o problema.
 
 <img width="1920" height="987" alt="pipeline" src="https://github.com/user-attachments/assets/7b5d7268-1d13-4c9b-bd62-cef7aded4772" />
 
@@ -552,7 +567,7 @@ Na aba **Actions** do repositório, cada execução mostra o status de cada job 
 
 ## 12. Procedimentos básicos de recuperação
 
-Esta seção descreve como restabelecer o serviço nos cenários de falha mais prováveis. Como o site é estático e todo o código está versionado no GitHub, a recuperação é simples: o repositório é a fonte de verdade da aplicação.
+--> Esta seção descreve como restabelecer o serviço nos cenários de falha mais prováveis. Como o site é estático e todo o código está versionado no GitHub, a recuperação é simples: o repositório é a fonte de verdade da aplicação.
 
 ### O que está (e o que não está) no repositório
 
@@ -566,7 +581,7 @@ Esta seção descreve como restabelecer o serviço nos cenários de falha mais p
 
 ### Cenário 1: o site está fora do ar (contêiner parado)
 
-Sintoma: o alerta do Uptime Kuma dispara ou o site não carrega.
+--> Sintoma: o alerta do Uptime Kuma dispara ou o site não carrega.
 
 1. Acessar a VM por SSH:
 ```bash
@@ -591,16 +606,16 @@ O `docker-compose.yml` usa `restart: always`, então o contêiner volta sozinho 
 
 ### Cenário 2: um deploy quebrou o site
 
-Sintoma: o site ficou fora do ar ou com defeito logo após um push na `main`.
+--> Sintoma: o site ficou fora do ar ou com defeito logo após um push na `main`.
 
-A forma recomendada é **reverter o commit problemático** pelo Git, o que dispara o pipeline e refaz o deploy automaticamente:
+--> A forma recomendada é **reverter o commit problemático** pelo Git, o que dispara o pipeline e refaz o deploy automaticamente:
 
 ```bash
 git revert <hash-do-commit-com-problema>
 git push origin main
 ```
 
-Se for preciso restaurar o serviço com urgência, é possível reconstruir direto na VM, com o código revertido já enviado ao repositório:
+--> Se for preciso restaurar o serviço com urgência, é possível reconstruir direto na VM, com o código revertido já enviado ao repositório:
 
 ```bash
 cd ~/Devops-N1
@@ -620,7 +635,7 @@ docker compose up -d --build
 
 ### Cenário 4: certificado HTTPS expirado ou inválido
 
-Sintoma: o navegador exibe aviso de certificado vencido.
+--> Sintoma: o navegador exibe aviso de certificado vencido.
 
 1. Renovar o certificado `Let's Encrypt (Certbot)`:
 ```bash
