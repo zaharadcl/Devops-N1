@@ -1,4 +1,4 @@
-# Projeto Integrador — Cloud & DevOps
+# ☁️ Projeto Integrador — Cloud & DevOps
 
 
 ## Aplicação
@@ -478,6 +478,189 @@ O HTTPS também utiliza a porta 443, que está mapeada no `docker-compose.yml` p
 
 ## 10. Processo de CI/CD
 
+O projeto usa o **GitHub Actions** para automatizar validação, testes e deploy. O pipeline está definido em `.github/workflows/deploy.yml` e é composto por quatro jobs executados em sequência. Se qualquer um falhar, os seguintes não rodam e o deploy não acontece.
+
+### Gatilhos
+
+| Evento | O que acontece |
+|---|---|
+| `push` na branch `main` | Executa os 4 jobs, incluindo o deploy em produção |
+| `pull_request` para `main` | Executa apenas os 3 primeiros jobs (validação, teste e build), sem deploy |
+
+Assim, qualquer alteração proposta via Pull Request é verificada antes de chegar à produção.
+
+### Fluxo do pipeline
+
+```mermaid
+flowchart LR
+    A[Push / Pull Request] --> B[1. Build e Validação]
+    B --> C[2. Testes Automatizados]
+    C --> D[3. Build da Imagem Docker]
+    D --> E{Push na main?}
+    E -- Sim --> F[4. Deploy na VM Oracle Cloud]
+    E -- Não --> G[Fim]
+```
+
+### Etapas
+
+**1. Build e Validação**
+Faz o checkout do repositório e confirma que os arquivos essenciais existem: `index.html`, `style.css`, `Dockerfile` e `docker-compose.yml`. Se algum estiver ausente, o pipeline falha logo no início.
+
+**2. Testes Automatizados (smoke test)**
+Constrói a imagem Docker, sobe um contêiner temporário na porta 8080 e faz uma requisição HTTP com `curl`. O teste passa somente se a aplicação responder com **status 200**. Ao final, o contêiner de teste é removido (`if: always()`), mesmo que o teste falhe.
+
+**3. Build da Imagem Docker**
+Constrói a imagem de produção, identificada pelo hash do commit (`devops-site:<sha>`). Essa etapa garante que o `Dockerfile` está construindo corretamente antes do deploy.
+
+**4. Deploy em Produção (VM)**
+Executa apenas em `push` na `main`. Conecta por **SSH** à máquina virtual na Oracle Cloud (usando a action `appleboy/ssh-action`) e roda os comandos:
+
+```bash
+cd ~/Devops-N1
+git checkout main
+git pull origin main
+docker compose down --remove-orphans
+docker compose up -d --build
+```
+
+Ou seja, a VM baixa o código mais recente, derruba os contêineres antigos e sobe a nova versão reconstruindo a imagem.
+
+### Segredos utilizados
+
+As credenciais de acesso à VM ficam armazenadas em **GitHub Secrets** (*Settings → Secrets and variables → Actions*) e nunca aparecem no código:
+
+| Secret | Finalidade |
+|---|---|
+| `VM_HOST` | Endereço (IP ou domínio) da VM |
+| `VM_USER` | Usuário usado na conexão SSH |
+| `VM_SSH_KEY` | Chave privada SSH para autenticação |
+
+### Como acompanhar uma execução
+
+Na aba **Actions** do repositório, cada execução mostra o status de cada job e os logs detalhados. Em caso de falha, é possível identificar exatamente em qual etapa ocorreu o problema.
+
+<img width="1920" height="987" alt="pipeline" src="https://github.com/user-attachments/assets/7b5d7268-1d13-4c9b-bd62-cef7aded4772" />
+
+
+### Limitações e melhorias futuras
+
+- A imagem construída no job 3 não é publicada em um registry (como Docker Hub ou GitHub Container Registry); o deploy reconstrói a imagem na própria VM.
+- O `docker compose down` antes do `up` causa uma breve indisponibilidade durante cada deploy.
+- O teste automatizado cobre apenas a resposta HTTP 200 (smoke test), sem testes de conteúdo ou funcionalidade.
+
 ## 11. Monitoramento
 
 ## 12. Procedimentos básicos de recuperação
+
+Esta seção descreve como restabelecer o serviço nos cenários de falha mais prováveis. Como o site é estático e todo o código está versionado no GitHub, a recuperação é simples: o repositório é a fonte de verdade da aplicação.
+
+### O que está (e o que não está) no repositório
+
+| Item | Onde fica | Se for perdido |
+|---|---|---|
+| Código do site, `Dockerfile`, `docker-compose.yml`, `default.conf`, pipeline | Repositório GitHub | Basta clonar novamente |
+| Segredos do deploy (`VM_HOST`, `VM_USER`, `VM_SSH_KEY`) | GitHub Secrets | Recriar nas configurações do repositório |
+| Certificados HTTPS | `/etc/letsencrypt` na VM | Emitir novamente (ver cenário 4) |
+| Registro DNS | `Duck DNS` | Recriar apontando para o IP da VM |
+| Regras de rede (portas 22, 80 e 443) | Oracle Cloud (Security List / NSG) | Recriar as regras de entrada |
+
+### Cenário 1: o site está fora do ar (contêiner parado)
+
+Sintoma: o alerta do Uptime Kuma dispara ou o site não carrega.
+
+1. Acessar a VM por SSH:
+```bash
+   ssh [usuario]@[ip-da-vm]
+```
+2. Verificar o estado do contêiner:
+```bash
+   docker ps -a
+```
+3. Consultar os logs para identificar a causa:
+```bash
+   docker logs site-devops
+```
+4. Subir o serviço novamente:
+```bash
+   cd ~/Devops-N1
+   docker compose up -d
+```
+5. Confirmar a recuperação no painel do Uptime Kuma e com `curl -I https://devopszahara.duckdns.org/`.
+
+O `docker-compose.yml` usa `restart: always`, então o contêiner volta sozinho após falhas e reinicializações da VM, desde que o serviço do Docker esteja habilitado na inicialização (`sudo systemctl enable docker`).
+
+### Cenário 2: um deploy quebrou o site
+
+Sintoma: o site ficou fora do ar ou com defeito logo após um push na `main`.
+
+A forma recomendada é **reverter o commit problemático** pelo Git, o que dispara o pipeline e refaz o deploy automaticamente:
+
+```bash
+git revert <hash-do-commit-com-problema>
+git push origin main
+```
+
+Se for preciso restaurar o serviço com urgência, é possível reconstruir direto na VM, com o código revertido já enviado ao repositório:
+
+```bash
+cd ~/Devops-N1
+git pull origin main
+docker compose down --remove-orphans
+docker compose up -d --build
+```
+
+> Observação: não vale fazer `git checkout` de um commit antigo direto na VM, pois o próximo deploy executa `git pull origin main` e sobrescreve essa alteração.
+
+### Cenário 3: a VM reiniciou ou está inacessível
+
+1. Verificar o estado da instância no console da Oracle Cloud e, se estiver parada, iniciá-la.
+2. Se o IP público mudou, atualizar o registro DNS e o secret `VM_HOST` no GitHub.
+3. Conectar por SSH e conferir se o Docker está ativo (`sudo systemctl status docker`) e se o contêiner subiu (`docker ps`).
+4. Caso não responda por SSH, verificar no console da Oracle se as regras de rede liberam as portas 22, 80 e 443.
+
+### Cenário 4: certificado HTTPS expirado ou inválido
+
+Sintoma: o navegador exibe aviso de certificado vencido.
+
+1. Renovar o certificado `Let's Encrypt (Certbot)`:
+```bash
+   sudo certbot renew
+```
+   > Se a porta 80 estiver ocupada pelo contêiner, pode ser necessário pará-lo antes (`docker compose down`) e subi-lo depois.
+2. Reiniciar o contêiner para carregar o novo certificado:
+```bash
+   cd ~/Devops-N1
+   docker compose restart
+```
+3. Validar acessando `https://devopszahara.duckdns.org/` e verificando a data de validade do certificado.
+
+### Cenário 5: o pipeline de CI/CD está falhando
+
+1. Abrir a aba **Actions** no GitHub e identificar qual job falhou.
+2. Falha no **job 1 ou 2**: costuma indicar arquivo ausente ou aplicação não respondendo 200. Corrigir o código e enviar novo commit.
+3. Falha no **job 4 (deploy)**: conferir os secrets `VM_HOST`, `VM_USER` e `VM_SSH_KEY` e se a VM está acessível por SSH.
+4. Enquanto o pipeline estiver quebrado, a versão atual em produção continua funcionando, pois o deploy só altera o servidor se todos os jobs anteriores passarem.
+
+### Cenário 6: a VM foi perdida (recriação do zero)
+
+1. Criar uma nova VM na Oracle Cloud e liberar as portas 22, 80 e 443.
+2. Instalar Docker, Docker Compose e Git.
+3. Clonar o repositório no diretório esperado pelo pipeline:
+```bash
+   git clone https://github.com/zaharadcl/Devops-N1.git ~/Devops-N1
+```
+4. Emitir novamente os certificados HTTPS (cenário 4) para que `/etc/letsencrypt` exista antes de subir o contêiner.
+5. Subir a aplicação:
+```bash
+   cd ~/Devops-N1
+   docker compose up -d --build
+```
+6. Atualizar o DNS para o novo IP e os secrets `VM_HOST` e `VM_SSH_KEY` no GitHub.
+7. Validar o site e o monitoramento.
+
+### Verificação pós-recuperação
+
+- [ ] O site responde em `https://devopszahara.duckdns.org/` com status 200
+- [ ] O certificado HTTPS está válido
+- [ ] O monitor no Uptime Kuma voltou ao estado "Up"
+- [ ] Um push de teste na `main` completa o pipeline com sucesso
