@@ -33,11 +33,26 @@
       copy:
         src: ../
         dest: /opt/devops-n1/
-        exclude: 
-          - ".git"
-          - "ansible"
 
+    - name: 5.1. Configurar NGINX em HTTP para VM sem certificado SSL
+      copy:
+        dest: /opt/devops-n1/default.conf
+        content: |
+          server {
+              listen 80;
+              server_name _;
+
+              location / {
+                  root /usr/share/nginx/html;
+                  index index.html;
+                  try_files $uri $uri/ /index.html;
+              }
+          }
+        
     - name: 6. Subir a aplicação com Docker Compose
       command: docker compose up -d --build
       args:
         chdir: /opt/devops-n1
+        
+    - name: 7. Reiniciar contêiner para aplicar configuração do NGINX
+      command: docker restart site-devops
