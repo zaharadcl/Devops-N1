@@ -1,0 +1,43 @@
+---
+- name: Preparar Servidor Linux e Implantar Aplicação N1
+  hosts: producao
+  become: yes # Executa como administrador (sudo)
+  
+  tasks:
+    - name: 1. Atualizar a lista de pacotes do Ubuntu
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: 2. Instalar o Docker, Docker Compose e Git
+      apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+          - git
+        state: present
+
+    - name: 3. Garantir que o serviço do Docker está rodando
+      systemd:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: 4. Criar a pasta do projeto no servidor destino
+      file:
+        path: /opt/devops-n1
+        state: directory
+        mode: '0755'
+
+    - name: 5. Sincronizar os arquivos do projeto para o servidor
+      copy:
+        src: ../
+        dest: /opt/devops-n1/
+        exclude: 
+          - ".git"
+          - "ansible"
+
+    - name: 6. Subir a aplicação com Docker Compose
+      command: docker compose up -d --build
+      args:
+        chdir: /opt/devops-n1
